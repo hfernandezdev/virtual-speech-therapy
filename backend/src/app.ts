@@ -4,6 +4,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
+import studentRoutes from './routes/students';
+import sessionRoutes from './routes/sessions';
 
 dotenv.config();
 
@@ -19,6 +21,9 @@ const io = new SocketServer(httpServer, {
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/api/students', studentRoutes);
+app.use('/api/sessions', sessionRoutes);
+
 
 // Conexión MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/speech-therapy';
