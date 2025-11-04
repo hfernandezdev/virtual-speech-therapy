@@ -18,7 +18,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const newSocket = io(process.env.REACT_APP_WS_URL || 'http://localhost:5000');
+    const newSocket = io(import.meta.env.VITE_WS_URL || 'http://localhost:5000');
 
     newSocket.on('connect', () => {
       console.log('✅ Conectado al servidor WebSocket');

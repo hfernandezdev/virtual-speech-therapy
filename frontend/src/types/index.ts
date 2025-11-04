@@ -23,3 +23,9 @@ export interface GameState {
   currentWord: string;
   options: string[];
 }
+
+export interface CaseloadStats {
+  totalStudents: number;
+  totalSessions: number;
+  averagePercentage: number;
+}
