@@ -30,7 +30,7 @@ app.use('/api/sessions', sessionRoutes);
 // Conexión MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/speech-therapy';
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Conectado a MongoDB'))
+  .then(() => console.log('✅ Conectado a MongoDB: ', MONGODB_URI))
   .catch(err => console.error('❌ Error MongoDB:', err));
 
 // Rutas básicas
