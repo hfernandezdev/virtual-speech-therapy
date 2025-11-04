@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
 import studentRoutes from './routes/students';
 import sessionRoutes from './routes/sessions';
+import { setupGameHandlers } from './websocket/gameHandlers';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const io = new SocketServer(httpServer, {
     methods: ["GET", "POST", "PUT", "DELETE"]
   }
 });
+setupGameHandlers(io);
 
 // Middleware
 app.use(cors());
