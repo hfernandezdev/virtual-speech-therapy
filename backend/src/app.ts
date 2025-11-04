@@ -26,9 +26,11 @@ app.use(express.json());
 app.use('/api/students', studentRoutes);
 app.use('/api/sessions', sessionRoutes);
 
-
 // Conexión MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/speech-therapy';
+// const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/speech-therapy';
+// TODO: Se usa temporalmente la cadena de conexión directamente para realizar pruebas
+const MONGODB_URI = 'mongodb+srv://speech-therapy-user:u01t0YKpwhGkfiNa@speech-therapy-cluster.dsyy8xc.mongodb.net/?appName=speech-therapy-cluster';
+
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ Conectado a MongoDB: ', MONGODB_URI))
   .catch(err => console.error('❌ Error MongoDB:', err));
@@ -47,7 +49,9 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
+// TODO: Se usa puerto fijo para facilitar pruebas
+const PORT = 5000;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
