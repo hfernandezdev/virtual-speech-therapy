@@ -20,7 +20,7 @@ const ProgressChart: React.FC<ProgressChartProps> = ({ sessions }) => {
         <p className="text-gray-500 text-center py-4">No hay datos de sesiones aún</p>
       ) : (
         <div className="space-y-3">
-          {sortedSessions.map((session, index) => (
+          {sortedSessions.map((session, /*index*/) => (
             <div key={session._id} className="flex items-center space-x-3">
               <div className="text-sm text-gray-600 w-20">
                 {new Date(session.date).toLocaleDateString()}

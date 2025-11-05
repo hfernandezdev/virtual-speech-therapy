@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Student, Session } from '../types';
-import { studentService, sessionService } from '../services/api';
+import { studentService, /*sessionService*/ } from '../services/api';
 import StudentList from '../components/StudentList';
 import SessionForm from '../components/SessionForm';
 import ProgressChart from '../components/ProgressChart';

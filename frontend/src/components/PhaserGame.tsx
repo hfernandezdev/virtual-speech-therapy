@@ -240,16 +240,16 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
   };
 
   // TODO: Implement sendGameAction if needed in future
-  const sendGameAction = (action: string, data?: any) => {
-    if (socket && isConnected) {
-      socket.emit('game-action', {
-        action,
-        data,
-        studentId,
-        therapistId
-      });
-    }
-  };
+  // const sendGameAction = (action: string, data?: any) => {
+  //   if (socket && isConnected) {
+  //     socket.emit('game-action', {
+  //       action,
+  //       data,
+  //       studentId,
+  //       therapistId
+  //     });
+  //   }
+  // };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">

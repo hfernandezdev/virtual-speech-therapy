@@ -1,5 +1,6 @@
 export class DailyService {
-  private static baseUrl = 'https://api.daily.co/v1';
+  // TODO: Descomentar para producción
+  // private static baseUrl = 'https://api.daily.co/v1';
   // En producción, esto debería manejarse desde el backend por seguridad
 
   static async createRoom(roomName: string): Promise<string> {

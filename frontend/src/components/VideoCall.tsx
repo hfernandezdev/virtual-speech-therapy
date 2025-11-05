@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, /*useRef,*/ useState } from 'react';
 
 interface VideoCallProps {
   roomUrl: string;
@@ -6,7 +6,8 @@ interface VideoCallProps {
 }
 
 const VideoCall: React.FC<VideoCallProps> = ({ roomUrl, onCallEnd }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  // TODO: Descomentar para producción
+  // const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
