@@ -278,7 +278,7 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
         </div>
       </div>
 
-      <div ref={gameRef} className="border-2 border-gray-200 rounded-lg overflow-hidden" />
+      <div ref={gameRef} className="border-2 border-gray-200 rounded-lg overflow-hidden flex justify-center" />
 
       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
         <h4 className="font-semibold mb-2">Instrucciones:</h4>
