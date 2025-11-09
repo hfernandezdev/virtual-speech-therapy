@@ -82,22 +82,34 @@ const VideoCall: React.FC<VideoCallProps> = ({ roomUrl, onCallEnd }) => {
               <div className="text-6xl mb-4">📹</div>
               <p className="text-xl mb-2">Video Call Simulation</p>
               <p className="text-gray-300 mb-4">Room: {roomUrl}</p>
+              {/* Banner informativo DEMO */}
+              <div className="bg-blue-600 text-white px-4 py-2 rounded-md mb-4 mx-auto max-w-md">
+                <p className="text-sm font-medium">
+                  🎯 DEMO: Esta es una simulación de videollamada
+                </p>
+              </div>
               {isConnected ? (
                 <div className="space-y-2">
                   <div className="flex space-x-4 justify-center">
-                    <div className="w-32 h-24 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <div className="w-32 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
                       <span className="text-white">Terapeuta</span>
                     </div>
-                    <div className="w-32 h-24 bg-green-600 rounded-lg flex items-center justify-center">
+                    <div className="w-32 h-12 bg-green-600 rounded-lg flex items-center justify-center">
                       <span className="text-white">Estudiante</span>
                     </div>
                   </div>
-                  <button
-                    onClick={handleEndCall}
-                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 mt-4"
-                  >
-                    Finalizar Llamada
-                  </button>
+                  {/* Botón con texto explicativo mejorado */}
+                  <div className="mt-6 space-y-2">
+                    <button
+                      onClick={handleEndCall}
+                      className="bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 transition-colors duration-200 font-semibold text-lg w-full max-w-xs"
+                    >
+                      Finalizar Llamada
+                    </button>
+                    <p className="text-yellow-300 text-sm max-w-xs mx-auto">
+                      ⚡ Presiona "Finalizar Llamada" para continuar con el demo
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="animate-pulse">Conectando...</div>
