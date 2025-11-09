@@ -22,6 +22,35 @@ const TherapistDashboard: React.FC = () => {
       setLoading(true);
       const response = await studentService.getStudents();
       setStudents(response.data);
+
+       // Crear sesiones de prueba temporalmente
+      const mockSessions: Session[] = response.data.flatMap((student: Student) => [
+        {
+          _id: `session-${student._id}-1`,
+          studentId: student._id,
+          therapistId: 'therapist-1',
+          date: new Date().toISOString(),
+          correctAnswers: 8,
+          totalAnswers: 10,
+          percentage: 80,
+          notes: 'Buena sesión',
+          gameData: {}
+        },
+        {
+          _id: `session-${student._id}-2`,
+          studentId: student._id,
+          therapistId: 'therapist-1',
+          date: new Date(Date.now() - 86400000).toISOString(),
+          correctAnswers: 6,
+          totalAnswers: 10,
+          percentage: 60,
+          notes: 'Sesión regular',
+          gameData: {}
+        }
+      ]);
+
+      setSessions(mockSessions);
+
     } catch (error) {
       console.error('Error loading students:', error);
     } finally {
@@ -107,6 +136,7 @@ const TherapistDashboard: React.FC = () => {
             <CaseloadMetrics students={students} sessions={sessions} />
             <StudentList
               students={students}
+              sessions={sessions} // ← Agrega esta línea
               onSelectStudent={handleSelectStudent}
             />
           </div>
