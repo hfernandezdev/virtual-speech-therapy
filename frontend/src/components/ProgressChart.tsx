@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Session } from '../types';
 
 interface ProgressChartProps {
@@ -6,7 +6,29 @@ interface ProgressChartProps {
 }
 
 const ProgressChart: React.FC<ProgressChartProps> = ({ sessions }) => {
-  const sortedSessions = [...sessions].sort((a, b) =>
+  const [internalSessions, setInternalSessions] = useState<Session[]>(sessions);
+
+  useEffect(() => {
+    const newSession: Session = {
+      _id: Date.now().toString(),
+      studentId: 'mock-student-id',
+      therapistId: 'mock-therapist-id',
+      date: new Date().toISOString(),
+      correctAnswers: Math.floor(Math.random() * 10) + 1,
+      totalAnswers: 10,
+      percentage: Math.floor(Math.random() * 100) + 1,
+      notes: 'Sesión automática generada',
+      gameData: {
+        type: 'simulation',
+        duration: '5min',
+        level: Math.floor(Math.random() * 5) + 1
+      }
+    };
+
+    setInternalSessions([newSession, ...sessions]);
+  }, []);
+
+  const sortedSessions = [...internalSessions].sort((a, b) =>
     new Date(b.date).getTime() - new Date(a.date).getTime()
   ).slice(0, 5);
 
@@ -20,7 +42,7 @@ const ProgressChart: React.FC<ProgressChartProps> = ({ sessions }) => {
         <p className="text-gray-500 text-center py-4">No hay datos de sesiones aún</p>
       ) : (
         <div className="space-y-3">
-          {sortedSessions.map((session, /*index*/) => (
+          {sortedSessions.map((session) => (
             <div key={session._id} className="flex items-center space-x-3">
               <div className="text-sm text-gray-600 w-20">
                 {new Date(session.date).toLocaleDateString()}
