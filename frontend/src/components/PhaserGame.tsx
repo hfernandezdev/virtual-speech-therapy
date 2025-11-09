@@ -21,6 +21,8 @@ class WordMatchingScene extends Phaser.Scene {
   private score: number = 0;
   private currentPlayer: 'therapist' | 'student' = 'therapist';
   private sounds!: GameSounds;
+  private playerDisplay!: Phaser.GameObjects.Container;
+  private turnIndicator!: Phaser.GameObjects.Rectangle;
 
   private onGameUpdate?: (gameData: any) => void;
 
@@ -59,8 +61,7 @@ class WordMatchingScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.initializeGame();
-
-    this.updatePlayerDisplay();
+    this.createPlayerDisplay();
     this.updateGameState();
   }
 
@@ -80,10 +81,75 @@ class WordMatchingScene extends Phaser.Scene {
     this.add.text(400, 120, this.currentWord, {
       fontSize: '48px',
       color: '#ffffff',
-      fontFamily: 'Arial'
+      fontFamily: 'Arial',
+      backgroundColor: '#2c3e50',
+      padding: { x: 20, y: 10 }
     }).setOrigin(0.5);
 
     this.createOptionButtons();
+  }
+
+  private createPlayerDisplay() {
+    if (this.playerDisplay) {
+      this.playerDisplay.destroy();
+    }
+
+    this.playerDisplay = this.add.container(400, 500);
+
+    const background = this.add.rectangle(0, 0, 300, 80, 0x2c3e50, 0.9);
+    background.setStrokeStyle(3, this.currentPlayer === 'therapist' ? 0x3498db : 0x2ecc71);
+
+    this.turnIndicator = this.add.rectangle(0, 0, 320, 100, 0xffffff, 0.1);
+    this.turnIndicator.setVisible(false);
+
+    const turnText = this.add.text(0, -15, 'TURNO ACTUAL', {
+      fontSize: '16px',
+      color: '#ecf0f1',
+      fontFamily: 'Arial'
+    }).setOrigin(0.5);
+
+    const playerName = this.add.text(0, 15, this.currentPlayer === 'therapist' ? 'TERAPEUTA' : 'ESTUDIANTE', {
+      fontSize: '24px',
+      color: this.currentPlayer === 'therapist' ? '#3498db' : '#2ecc71',
+      fontFamily: 'Arial'
+    }).setOrigin(0.5);
+
+    this.playerDisplay.add([this.turnIndicator, background, turnText, playerName]);
+
+    this.tweens.add({
+      targets: this.playerDisplay,
+      scaleX: { from: 0.8, to: 1 },
+      scaleY: { from: 0.8, to: 1 },
+      duration: 300,
+      ease: 'Back.easeOut'
+    });
+
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        this.turnIndicator.setVisible(!this.turnIndicator.visible);
+      },
+      loop: true
+    });
+
+    this.updateScoreDisplay();
+  }
+
+  private updateScoreDisplay() {
+    const existingScore = this.children.getByName('scoreDisplay');
+    if (existingScore) {
+      existingScore.destroy();
+    }
+
+    this.add.text(400, 550, `Puntuación: ${this.score}`, {
+      fontSize: '20px',
+      color: '#f1c40f',
+      fontFamily: 'Arial',
+      backgroundColor: '#34495e',
+      padding: { x: 15, y: 8 }
+    })
+    .setOrigin(0.5)
+    .setName('scoreDisplay');
   }
 
   private createOptionButtons() {
@@ -105,6 +171,20 @@ class WordMatchingScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setInteractive();
 
+      button.on('pointerover', () => {
+        if (!this.selectedOption) {
+          button.setBackgroundColor('#34495e');
+          button.setScale(1.1);
+        }
+      });
+
+      button.on('pointerout', () => {
+        if (!this.selectedOption) {
+          button.setBackgroundColor('#2c3e50');
+          button.setScale(1);
+        }
+      });
+
       button.on('pointerdown', () => {
         this.selectOption(option, button);
       });
@@ -124,7 +204,7 @@ class WordMatchingScene extends Phaser.Scene {
       button.setBackgroundColor('#27ae60');
       this.score += 10;
 
-      this.createParticles(button.x, button.y);
+      this.createCelebrationParticles(button.x, button.y);
 
       this.time.delayedCall(1000, () => {
         this.nextRound();
@@ -141,22 +221,26 @@ class WordMatchingScene extends Phaser.Scene {
       });
     }
 
+    this.updateScoreDisplay();
     this.updateGameState();
   }
 
-  private createParticles(x: number, y: number) {
-    for (let i = 0; i < 10; i++) {
-      const circle = this.add.circle(x, y, 5, 0xffffff, 1);
+  private createCelebrationParticles(x: number, y: number) {
+    const colors = [0xf1c40f, 0xe74c3c, 0x3498db, 0x2ecc71, 0x9b59b6];
+
+    for (let i = 0; i < 15; i++) {
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const particle = this.add.circle(x, y, 8, color, 1);
 
       this.tweens.add({
-        targets: circle,
-        x: x + (Math.random() - 0.5) * 200,
-        y: y + (Math.random() - 0.5) * 200,
+        targets: particle,
+        x: x + (Math.random() - 0.5) * 300,
+        y: y + (Math.random() - 0.5) * 300,
         alpha: 0,
         scale: 0,
-        duration: 600,
+        duration: 800,
         ease: 'Power2',
-        onComplete: () => circle.destroy()
+        onComplete: () => particle.destroy()
       });
     }
   }
@@ -169,29 +253,8 @@ class WordMatchingScene extends Phaser.Scene {
 
   private switchPlayer() {
     this.currentPlayer = this.currentPlayer === 'therapist' ? 'student' : 'therapist';
-    this.updatePlayerDisplay();
+    this.createPlayerDisplay();
     this.updateGameState();
-  }
-
-  private updatePlayerDisplay() {
-    const existingDisplay = this.children.getByName('playerDisplay');
-    if (existingDisplay) {
-      existingDisplay.destroy();
-    }
-
-    this.add.text(400, 500, `Turno: ${this.currentPlayer === 'therapist' ? 'Terapeuta' : 'Estudiante'}`, {
-      fontSize: '24px',
-      color: '#ffffff',
-      fontFamily: 'Arial'
-    })
-    .setOrigin(0.5)
-    .setName('playerDisplay');
-
-    this.add.text(400, 540, `Puntuación: ${this.score}`, {
-      fontSize: '20px',
-      color: '#f1c40f',
-      fontFamily: 'Arial'
-    }).setOrigin(0.5);
   }
 
   private updateGameState() {
@@ -239,7 +302,7 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
         }
       });
     }
-  }, [socket, isConnected, studentId, therapistId, onGameUpdate]);
+  }, [socket, isConnected, studentId, therapistId, onGameUpdate, gameState]);
 
   useEffect(() => {
     if (!gameRef.current) return;
@@ -303,7 +366,6 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
     };
   }, [socket, isConnected, studentId, therapistId]);
 
-
   // TODO: Implement sendGameAction if needed in future
   // const sendGameAction = (action: string, data?: any) => {
   //   if (socket && isConnected) {
@@ -322,22 +384,22 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
         <h3 className="text-lg font-semibold">Therapy Game - Word Matching</h3>
         <div className="flex items-center space-x-4">
           <div className={`flex items-center space-x-2 ${
-            gameState.currentPlayer === 'therapist' ? 'text-blue-600' : 'text-gray-600'
+            gameState.currentPlayer === 'therapist' ? 'text-blue-600 font-bold' : 'text-gray-600'
           }`}>
             <div className={`w-3 h-3 rounded-full ${
-              gameState.currentPlayer === 'therapist' ? 'bg-blue-500' : 'bg-gray-400'
+              gameState.currentPlayer === 'therapist' ? 'bg-blue-500 animate-pulse' : 'bg-gray-400'
             }`}></div>
             <span className="text-sm">Terapeuta</span>
           </div>
           <div className={`flex items-center space-x-2 ${
-            gameState.currentPlayer === 'student' ? 'text-green-600' : 'text-gray-600'
+            gameState.currentPlayer === 'student' ? 'text-green-600 font-bold' : 'text-gray-600'
           }`}>
             <div className={`w-3 h-3 rounded-full ${
-              gameState.currentPlayer === 'student' ? 'bg-green-500' : 'bg-gray-400'
+              gameState.currentPlayer === 'student' ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
             }`}></div>
             <span className="text-sm">Estudiante</span>
           </div>
-          <div className="text-lg font-bold text-purple-600">
+          <div className="text-lg font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-lg">
             Score: {gameState.score}
           </div>
         </div>
