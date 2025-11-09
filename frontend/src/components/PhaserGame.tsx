@@ -8,6 +8,11 @@ interface PhaserGameProps {
   onGameUpdate?: (gameData: any) => void;
 }
 
+interface GameSounds {
+  correct: Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound | null;
+  incorrect: Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound | null;
+}
+
 class WordMatchingScene extends Phaser.Scene {
   private currentWord!: string;
   private options: string[] = [];
@@ -15,6 +20,7 @@ class WordMatchingScene extends Phaser.Scene {
   private selectedOption: string | null = null;
   private score: number = 0;
   private currentPlayer: 'therapist' | 'student' = 'therapist';
+  private sounds!: GameSounds;
 
   private onGameUpdate?: (gameData: any) => void;
 
@@ -26,7 +32,24 @@ class WordMatchingScene extends Phaser.Scene {
     this.onGameUpdate = data.onGameUpdate;
   }
 
+  preload() {
+    this.load.audio('correctSound', '/assets/sounds/correct.wav');
+    this.load.audio('incorrectSound', '/assets/sounds/incorrect.wav');
+  }
+
   create() {
+    this.sounds = {
+      correct: this.sound.add('correctSound') as Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound,
+      incorrect: this.sound.add('incorrectSound') as Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound
+    };
+
+    if (this.sounds.correct) {
+      this.sounds.correct.volume = 0.5;
+    }
+    if (this.sounds.incorrect) {
+      this.sounds.incorrect.volume = 0.5;
+    }
+
     this.cameras.main.setBackgroundColor('#4a90e2');
 
     this.add.text(400, 50, '¡Empareja la palabra!', {
@@ -93,6 +116,10 @@ class WordMatchingScene extends Phaser.Scene {
     this.selectedOption = option;
 
     if (option === this.correctOption) {
+      if (this.sounds.correct) {
+        this.sounds.correct.play();
+      }
+
       button.setBackgroundColor('#27ae60');
       this.score += 10;
 
@@ -102,6 +129,10 @@ class WordMatchingScene extends Phaser.Scene {
         this.nextRound();
       });
     } else {
+      if (this.sounds.incorrect) {
+        this.sounds.incorrect.play();
+      }
+
       button.setBackgroundColor('#e74c3c');
 
       this.time.delayedCall(1000, () => {
@@ -193,6 +224,10 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
           debug: false
         }
       },
+      audio: {
+        disableWebAudio: false,
+        noAudio: false
+      }
     };
 
     (config as any).scene = new WordMatchingScene();
