@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Phaser from 'phaser';
 import { useSocket } from '../contexts/SocketContext';
 
@@ -28,8 +28,8 @@ class WordMatchingScene extends Phaser.Scene {
     super({ key: 'WordMatchingScene' });
   }
 
-  init(data: { onGameUpdate?: (gameData: any) => void }) {
-    this.onGameUpdate = data.onGameUpdate;
+  setOnGameUpdate(callback: (gameData: any) => void) {
+    this.onGameUpdate = callback;
   }
 
   preload() {
@@ -61,6 +61,7 @@ class WordMatchingScene extends Phaser.Scene {
     this.initializeGame();
 
     this.updatePlayerDisplay();
+    this.updateGameState();
   }
 
   private initializeGame() {
@@ -140,12 +141,7 @@ class WordMatchingScene extends Phaser.Scene {
       });
     }
 
-    this.onGameUpdate?.({
-      selectedOption: option,
-      isCorrect: option === this.correctOption,
-      score: this.score,
-      currentWord: this.currentWord
-    });
+    this.updateGameState();
   }
 
   private createParticles(x: number, y: number) {
@@ -174,6 +170,7 @@ class WordMatchingScene extends Phaser.Scene {
   private switchPlayer() {
     this.currentPlayer = this.currentPlayer === 'therapist' ? 'student' : 'therapist';
     this.updatePlayerDisplay();
+    this.updateGameState();
   }
 
   private updatePlayerDisplay() {
@@ -196,17 +193,53 @@ class WordMatchingScene extends Phaser.Scene {
       fontFamily: 'Arial'
     }).setOrigin(0.5);
   }
+
+  private updateGameState() {
+    if (this.onGameUpdate) {
+      this.onGameUpdate({
+        score: this.score,
+        currentPlayer: this.currentPlayer,
+        currentWord: this.currentWord,
+        selectedOption: this.selectedOption
+      });
+    }
+  }
 }
 
 const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameUpdate }) => {
   const gameRef = useRef<HTMLDivElement>(null);
   const gameInstance = useRef<Phaser.Game | null>(null);
+  const sceneRef = useRef<WordMatchingScene | null>(null);
   const { socket, isConnected } = useSocket();
   const [gameState, setGameState] = useState({
     score: 0,
     currentPlayer: 'therapist' as 'therapist' | 'student',
     currentWord: ''
   });
+
+  const handleGameUpdate = useCallback((gameData: any) => {
+
+    setGameState(prev => ({
+      ...prev,
+      score: gameData.score !== undefined ? gameData.score : prev.score,
+      currentPlayer: gameData.currentPlayer !== undefined ? gameData.currentPlayer : prev.currentPlayer,
+      currentWord: gameData.currentWord !== undefined ? gameData.currentWord : prev.currentWord
+    }));
+
+    onGameUpdate?.(gameData);
+
+    if (socket && isConnected) {
+      socket.emit('game-update', {
+        studentId,
+        therapistId,
+        gameData: {
+          score: gameData.score !== undefined ? gameData.score : gameState.score,
+          currentPlayer: gameData.currentPlayer !== undefined ? gameData.currentPlayer : gameState.currentPlayer,
+          currentWord: gameData.currentWord !== undefined ? gameData.currentWord : gameState.currentWord
+        }
+      });
+    }
+  }, [socket, isConnected, studentId, therapistId, onGameUpdate]);
 
   useEffect(() => {
     if (!gameRef.current) return;
@@ -216,7 +249,6 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
       width: 800,
       height: 600,
       parent: gameRef.current,
-      scene: [WordMatchingScene],
       physics: {
         default: 'arcade',
         arcade: {
@@ -230,18 +262,28 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
       }
     };
 
-    (config as any).scene = new WordMatchingScene();
-    (config as any).scene.init({ onGameUpdate: handleGameUpdate });
+    const scene = new WordMatchingScene();
+    sceneRef.current = scene;
 
-    gameInstance.current = new Phaser.Game(config);
+    gameInstance.current = new Phaser.Game({
+      ...config,
+      scene: scene
+    });
 
     return () => {
       if (gameInstance.current) {
         gameInstance.current.destroy(true);
         gameInstance.current = null;
+        sceneRef.current = null;
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (sceneRef.current) {
+      sceneRef.current.setOnGameUpdate(handleGameUpdate);
+    }
+  }, [handleGameUpdate]);
 
   useEffect(() => {
     if (!socket || !isConnected) return;
@@ -261,18 +303,6 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
     };
   }, [socket, isConnected, studentId, therapistId]);
 
-  const handleGameUpdate = (gameData: any) => {
-    setGameState(prev => ({ ...prev, ...gameData }));
-    onGameUpdate?.(gameData);
-
-    if (socket && isConnected) {
-      socket.emit('game-update', {
-        studentId,
-        therapistId,
-        gameData: { ...gameState, ...gameData }
-      });
-    }
-  };
 
   // TODO: Implement sendGameAction if needed in future
   // const sendGameAction = (action: string, data?: any) => {
