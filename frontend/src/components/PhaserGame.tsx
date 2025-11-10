@@ -54,7 +54,7 @@ class WordMatchingScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor('#4a90e2');
 
-    this.add.text(400, 50, '¡Empareja la palabra!', {
+    this.add.text(400, 50, 'Aprendo las Palabras', {
       fontSize: '32px',
       color: '#ffffff',
       fontFamily: 'Arial'
@@ -405,16 +405,16 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ studentId, therapistId, onGameU
         </div>
       </div>
 
-      <div ref={gameRef} className="border-2 border-gray-200 rounded-lg overflow-hidden flex justify-center" />
-
       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
         <h4 className="font-semibold mb-2">Instrucciones:</h4>
         <p className="text-sm text-gray-600">
-          • Haz coincidir la palabra con el emoji correcto<br/>
+          • Haz coincidir la palabra con la imagen correcta<br/>
           • Los turnos se alternan entre terapeuta y estudiante<br/>
           • +10 puntos por cada respuesta correcta
         </p>
       </div>
+
+      <div ref={gameRef} className="border-2 border-gray-200 rounded-lg overflow-hidden flex justify-center" />
     </div>
   );
 };
